@@ -1,0 +1,30 @@
+@startuml
+title "HTTP proxy support in bosh"
+
+[Operations staff] as Staff
+package bosh_cli {
+    component bosh_cloudfoundry
+    component vcloud_cpi as bosh_micro_vcloud_cpi
+    component bosh_cli_plugin_micro
+}
+package micro_bosh {
+    component micro_bosh_agent
+    component director
+    component bosh_director_worker
+}
+[Iaas interface] as Iaas
+cloud internet {
+ [stemcell repository] as stemcell_repo
+ [release repository] as release_repo
+}
+
+left to right direction
+
+Staff - bosh_cli: use locally
+bosh_cli_plugin_micro --> micro_bosh_agent: (A) polls for agent start
+bosh_micro_vcloud_cpi --> Iaas: (B) requests vms exec
+bosh_cloudfoundry --> stemcell_repo: (C): download
+bosh_cli --> release_repo: (D): download
+bosh_cli -> director: (F) connect through TLS
+bosh_director_worker --> stemcell_repo: (E): download
+@enduml
